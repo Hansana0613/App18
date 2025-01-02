@@ -1,6 +1,9 @@
 package lk.javainstitute.app18;
 
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,6 +14,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import lk.javainstitute.app18.model.SQLiteHelper;
 
 public class CreateNoteActivity extends AppCompatActivity {
 
@@ -41,7 +49,41 @@ public class CreateNoteActivity extends AppCompatActivity {
 
                 } else {
                     //save
+                    SQLiteHelper sqLiteHelper = new SQLiteHelper(
+                            CreateNoteActivity.this,
+                            "mynotebook.db",
+                            null,
+                            1
+                    );
 
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            SQLiteDatabase sqLiteDatabase = sqLiteHelper.getWritableDatabase();
+                            ContentValues contentValues = new ContentValues();
+                            contentValues.put("title", editText1.getText().toString());
+                            contentValues.put("content", editText2.getText().toString());
+
+                            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a");
+                            contentValues.put("date_created", format.format(new Date()));
+
+                            long insertedId = sqLiteDatabase.insert("notes", null, contentValues);
+                            Log.i("MyNoteBookLog", String.valueOf(insertedId));
+                            
+                            sqLiteDatabase.close();
+
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    editText1.setText("");
+                                    editText2.setText("");
+
+                                    editText1.requestFocus();
+                                }
+                            });
+                        }
+                    }
+                    ).start();
                 }
             }
         });

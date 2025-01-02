@@ -69,7 +69,7 @@ public class CreateNoteActivity extends AppCompatActivity {
 
                             long insertedId = sqLiteDatabase.insert("notes", null, contentValues);
                             Log.i("MyNoteBookLog", String.valueOf(insertedId));
-                            
+
                             sqLiteDatabase.close();
 
                             runOnUiThread(new Runnable() {

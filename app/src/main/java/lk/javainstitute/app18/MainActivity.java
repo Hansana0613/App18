@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,7 +42,11 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
         RecyclerView recyclerView1 = findViewById(R.id.recyclerView1);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
@@ -89,23 +92,8 @@ class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.NoteViewHolde
 
     Cursor cursor;
 
-    public NoteListAdapter(Cursor cursor){
+    public NoteListAdapter(Cursor cursor) {
         this.cursor = cursor;
-    }
-
-    static class NoteViewHolder extends RecyclerView.ViewHolder {
-        TextView titleView;
-        TextView contentView;
-        TextView date_createdView;
-        View containerView;
-
-        public NoteViewHolder(@NonNull View itemView) {
-            super(itemView);
-            titleView = itemView.findViewById(R.id.textView5);
-            contentView = itemView.findViewById(R.id.textView6);
-            date_createdView = itemView.findViewById(R.id.textView7);
-            containerView = itemView;
-        }
     }
 
     @NonNull
@@ -134,10 +122,10 @@ class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.NoteViewHolde
             @Override
             public void onClick(View view) {
                 //Log.i("MyNoteBookLog","Item Clicked");
-                Intent i = new Intent(view.getContext(),CreateNoteActivity.class);
-                i.putExtra("id",id);
-                i.putExtra("title",title);
-                i.putExtra("content",content);
+                Intent i = new Intent(view.getContext(), CreateNoteActivity.class);
+                i.putExtra("id", id);
+                i.putExtra("title", title);
+                i.putExtra("content", content);
                 view.getContext().startActivity(i);
             }
         });
@@ -146,5 +134,20 @@ class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.NoteViewHolde
     @Override
     public int getItemCount() {
         return cursor.getCount();
+    }
+
+    static class NoteViewHolder extends RecyclerView.ViewHolder {
+        TextView titleView;
+        TextView contentView;
+        TextView date_createdView;
+        View containerView;
+
+        public NoteViewHolder(@NonNull View itemView) {
+            super(itemView);
+            titleView = itemView.findViewById(R.id.textView5);
+            contentView = itemView.findViewById(R.id.textView6);
+            date_createdView = itemView.findViewById(R.id.textView7);
+            containerView = itemView;
+        }
     }
 }

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -96,6 +97,21 @@ class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.NoteViewHolde
         this.cursor = cursor;
     }
 
+    static class NoteViewHolder extends RecyclerView.ViewHolder {
+        TextView titleView;
+        TextView contentView;
+        TextView date_createdView;
+        View containerView;
+
+        public NoteViewHolder(@NonNull View itemView) {
+            super(itemView);
+            titleView = itemView.findViewById(R.id.textView5);
+            contentView = itemView.findViewById(R.id.textView6);
+            date_createdView = itemView.findViewById(R.id.textView7);
+            containerView = itemView;
+        }
+    }
+
     @NonNull
     @Override
     public NoteListAdapter.NoteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -129,25 +145,40 @@ class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.NoteViewHolde
                 view.getContext().startActivity(i);
             }
         });
+
+        holder.containerView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                Log.i("MyNoteBookLog", "On Long Click");
+
+                SQLiteHelper sqLiteHelper = new SQLiteHelper(
+                        view.getContext(),
+                        "mynotebook.db",
+                        null,
+                        1
+                );
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        SQLiteDatabase sqLiteDatabase = sqLiteHelper.getWritableDatabase();
+                        int row = sqLiteDatabase.delete(
+                                "notes",
+                                "`id`=?",
+                                new String[]{id}
+                        );
+
+                        Log.i("MyNoteBookLog", row+" Row Deleted");
+                    }
+                }).start();
+
+                return true;
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
         return cursor.getCount();
-    }
-
-    static class NoteViewHolder extends RecyclerView.ViewHolder {
-        TextView titleView;
-        TextView contentView;
-        TextView date_createdView;
-        View containerView;
-
-        public NoteViewHolder(@NonNull View itemView) {
-            super(itemView);
-            titleView = itemView.findViewById(R.id.textView5);
-            contentView = itemView.findViewById(R.id.textView6);
-            date_createdView = itemView.findViewById(R.id.textView7);
-            containerView = itemView;
-        }
     }
 }

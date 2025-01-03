@@ -108,6 +108,8 @@ class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.NoteViewHolde
         TextView date_createdView;
         View containerView;
 
+        String id;
+
         public NoteViewHolder(@NonNull View itemView) {
             super(itemView);
             titleView = itemView.findViewById(R.id.textView5);
@@ -130,7 +132,7 @@ class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.NoteViewHolde
     public void onBindViewHolder(@NonNull NoteListAdapter.NoteViewHolder holder, int position) {
         cursor.moveToPosition(position);
 
-        String id = cursor.getString(0);
+        holder.id = cursor.getString(0);
         String title = cursor.getString(1);
         String content = cursor.getString(2);
         String date = cursor.getString(3);
@@ -144,42 +146,12 @@ class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.NoteViewHolde
             public void onClick(View view) {
                 //Log.i("MyNoteBookLog","Item Clicked");
                 Intent i = new Intent(view.getContext(), CreateNoteActivity.class);
-                i.putExtra("id", id);
+                i.putExtra("id", holder.id);
                 i.putExtra("title", title);
                 i.putExtra("content", content);
                 view.getContext().startActivity(i);
             }
         });
-
-//        holder.containerView.setOnLongClickListener(new View.OnLongClickListener() {
-//            @Override
-//            public boolean onLongClick(View view) {
-//                Log.i("MyNoteBookLog", "On Long Click");
-//
-//                SQLiteHelper sqLiteHelper = new SQLiteHelper(
-//                        view.getContext(),
-//                        "mynotebook.db",
-//                        null,
-//                        1
-//                );
-//
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        SQLiteDatabase sqLiteDatabase = sqLiteHelper.getWritableDatabase();
-//                        int row = sqLiteDatabase.delete(
-//                                "notes",
-//                                "`id`=?",
-//                                new String[]{id}
-//                        );
-//
-//                        Log.i("MyNoteBookLog", row+" Row Deleted");
-//                    }
-//                }).start();
-//
-//                return true;
-//            }
-//        });
     }
 
     @Override
@@ -204,5 +176,28 @@ class X extends ItemTouchHelper.Callback{
     @Override
     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
         Log.i("MyNoteBookLog", "On Swiped");
+
+        NoteListAdapter.NoteViewHolder holder = (NoteListAdapter.NoteViewHolder) viewHolder;
+
+        SQLiteHelper sqLiteHelper = new SQLiteHelper(
+                viewHolder.itemView.getContext(),
+                "mynotebook.db",
+                null,
+                1
+        );
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SQLiteDatabase sqLiteDatabase = sqLiteHelper.getWritableDatabase();
+                int row = sqLiteDatabase.delete(
+                        "notes",
+                        "`id`=?",
+                        new String[]{holder.id}
+                );
+
+                Log.i("MyNoteBookLog", row+" Row Deleted");
+            }
+        }).start();
     }
 }

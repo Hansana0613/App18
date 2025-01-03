@@ -23,6 +23,8 @@ import lk.javainstitute.app18.model.SQLiteHelper;
 
 public class CreateNoteActivity extends AppCompatActivity {
 
+    String id;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,7 +37,7 @@ public class CreateNoteActivity extends AppCompatActivity {
         });
 
         Intent i = getIntent();
-        String id = i.getStringExtra("id");
+        id = i.getStringExtra("id");
         String title = i.getStringExtra("title");
         String content = i.getStringExtra("content");
 
@@ -74,6 +76,7 @@ public class CreateNoteActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             SQLiteDatabase sqLiteDatabase = sqLiteHelper.getWritableDatabase();
+
                             ContentValues contentValues = new ContentValues();
                             contentValues.put("title", editText1.getText().toString());
                             contentValues.put("content", editText2.getText().toString());
@@ -81,8 +84,21 @@ public class CreateNoteActivity extends AppCompatActivity {
                             SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss a");
                             contentValues.put("date_created", format.format(new Date()));
 
-                            long insertedId = sqLiteDatabase.insert("notes", null, contentValues);
-                            Log.i("MyNoteBookLog", String.valueOf(insertedId));
+                            if (id != null) {
+
+                                int count = sqLiteDatabase.update(
+                                        "notes",
+                                        contentValues,
+                                        "`id`=?",
+                                        new String[]{id}
+                                );
+
+                                Log.i("MyNoteBookLog", count + " Row Updated");
+
+                            } else {
+                                long insertedId = sqLiteDatabase.insert("notes", null, contentValues);
+                                Log.i("MyNoteBookLog", String.valueOf(insertedId));
+                            }
 
                             sqLiteDatabase.close();
 

@@ -97,12 +97,14 @@ class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.NoteViewHolde
         TextView titleView;
         TextView contentView;
         TextView date_createdView;
+        View containerView;
 
         public NoteViewHolder(@NonNull View itemView) {
             super(itemView);
             titleView = itemView.findViewById(R.id.textView5);
             contentView = itemView.findViewById(R.id.textView6);
             date_createdView = itemView.findViewById(R.id.textView7);
+            containerView = itemView;
         }
     }
 
@@ -122,6 +124,13 @@ class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.NoteViewHolde
         holder.titleView.setText(cursor.getString(1));
         holder.contentView.setText(cursor.getString(2));
         holder.date_createdView.setText(cursor.getString(3));
+
+        holder.contentView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.i("MyNoteBookLog","Item Clicked");
+            }
+        });
     }
 
     @Override

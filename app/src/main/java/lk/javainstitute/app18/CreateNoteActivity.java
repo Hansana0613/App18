@@ -1,6 +1,7 @@
 package lk.javainstitute.app18;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
@@ -33,13 +34,26 @@ public class CreateNoteActivity extends AppCompatActivity {
             return insets;
         });
 
+        Intent i = getIntent();
+        String id = i.getStringExtra("id");
+        String title = i.getStringExtra("title");
+        String content = i.getStringExtra("content");
+
+        EditText editText1 = findViewById(R.id.editTextText1);
+        EditText editText2 = findViewById(R.id.editTextText2);
+
+        if (editText1 != null) {
+            editText1.setText(title);
+        }
+
+        if (editText2 != null) {
+            editText2.setText(content);
+        }
+
         Button button2 = findViewById(R.id.button2);
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                EditText editText1 = findViewById(R.id.editTextText1);
-                EditText editText2 = findViewById(R.id.editTextText2);
 
                 if (editText1.getText().toString().isEmpty()) {
                     Toast.makeText(CreateNoteActivity.this, "Please Fill The Title", Toast.LENGTH_LONG).show();

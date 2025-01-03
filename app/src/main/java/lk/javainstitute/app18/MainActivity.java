@@ -1,7 +1,10 @@
 package lk.javainstitute.app18;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +17,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import lk.javainstitute.app18.model.SQLiteHelper;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,13 +43,57 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
+
+        RecyclerView recyclerView1 = findViewById(R.id.recyclerView1);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(MainActivity.this);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        recyclerView1.setLayoutManager(layoutManager);
+
+        SQLiteHelper sqLiteHelper = new SQLiteHelper(
+                MainActivity.this,
+                "mynotebook.db",
+                null,
+                1
+        );
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SQLiteDatabase sqLiteDatabase = sqLiteHelper.getReadableDatabase();
+
+                Cursor cursor = sqLiteDatabase.query(
+                        "notes",
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        "`id` DESC"
+                );
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        NoteListAdapter noteListAdapter = new NoteListAdapter(cursor);
+                        recyclerView1.setAdapter(noteListAdapter);
+                    }
+                });
+
+            }
+        }).start();
     }
 }
 
 class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.NoteViewHolder> {
 
-    static class NoteViewHolder extends RecyclerView.ViewHolder {
+    Cursor cursor;
 
+    public NoteListAdapter(Cursor cursor){
+        this.cursor = cursor;
+    }
+
+    static class NoteViewHolder extends RecyclerView.ViewHolder {
         TextView titleView;
         TextView contentView;
         TextView date_createdView;
@@ -60,18 +110,22 @@ class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.NoteViewHolde
     @Override
     public NoteListAdapter.NoteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View view = inflater.inflate(R.layout.note_item, parent,false);
+        View view = inflater.inflate(R.layout.note_item, parent, false);
         NoteViewHolder noteViewHolder = new NoteViewHolder(view);
         return noteViewHolder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull NoteListAdapter.NoteViewHolder holder, int position) {
+        cursor.moveToPosition(position);
 
+        holder.titleView.setText(cursor.getString(1));
+        holder.contentView.setText(cursor.getString(2));
+        holder.date_createdView.setText(cursor.getString(3));
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return cursor.getCount();
     }
 }
